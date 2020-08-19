@@ -4,7 +4,7 @@ A fast stack class for Xojo.
 
 ## Overview
 
-This is a harness project for a fast stack class for Xojo, `Stack\_MTC`. It will work like a Variant array that references "items" instead of "rows", e.g., `RemoteItemAt`, and has an `Enqueue` method rather than `AddRow` and a `Dequeue` method in addition to `Pop`. (`Dequeue` is a first-in-first-out method while `Pop` is a last-in-first-out method.)
+This is a harness project for a fast stack class for Xojo, `Stack_MTC`. It will work like a Variant array that references "items" instead of "rows", e.g., `RemoteItemAt`, and has an `Enqueue` method rather than `AddRow` and a `Dequeue` method in addition to `Pop`. (`Dequeue` is a first-in-first-out method while `Pop` is a last-in-first-out method.)
 
 See the harness project's unit tests for examples. Meanwhile, here is some sample code:
 
