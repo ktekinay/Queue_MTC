@@ -2,6 +2,29 @@
 Protected Class QueueTests
 Inherits TestGroup
 	#tag Method, Flags = &h0
+		Sub CopyConstructorTest()
+		  var queue1 as new Queue_MTC
+		  
+		  queue1.Enqueue( 0 )
+		  queue1.Enqueue( 1 )
+		  queue1.Enqueue( 2 )
+		  queue1.Enqueue( 3 )
+		  call queue1.Dequeue
+		  
+		  var queue2 as new Queue_MTC( queue1 )
+		  Assert.AreEqual( queue1.Count, queue2.Count )
+		  
+		  for i as integer = 0 to queue1.LastItemIndex
+		    Assert.AreEqual( queue1( i ).IntegerValue, queue2( i ).IntegerValue )
+		  next
+		  
+		  queue2.Enqueue( 4 )
+		  Assert.AreEqual( 4, queue2( queue2.LastItemIndex ).IntegerValue )
+		  
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Sub FILOTest()
 		  var Queue as new Queue_MTC
 		  
