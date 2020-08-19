@@ -1,5 +1,5 @@
 #tag Class
-Protected Class Stack_MTC
+Protected Class Queue_MTC
 Implements Iterable,Iterator
 	#tag Method, Flags = &h0
 		Sub Constructor()
@@ -26,7 +26,7 @@ Implements Iterable,Iterator
 		  
 		  if LowerIndex = UpperIndex then
 		    //
-		    // Reset the stack
+		    // Reset the Queue
 		    //
 		    LowerIndex = 0
 		    UpperIndex = -1 
@@ -182,7 +182,7 @@ Implements Iterable,Iterator
 		  
 		  if LowerIndex = UpperIndex then
 		    //
-		    // Reset the stack
+		    // Reset the Queue
 		    //
 		    LowerIndex = 0
 		    UpperIndex = -1
