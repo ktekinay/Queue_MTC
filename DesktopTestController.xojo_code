@@ -10,7 +10,7 @@ Inherits TestController
 		  'group = New XojoUnitTests(Self, "Assertion")
 		  'group = New XojoUnitFailTests(Self, "Always Fail")
 		  
-		  group = new StackTests( self, "Stack" )
+		  group = new QueueTests( self, "Queue" )
 		  group = new TimingTests( self, "Timing" )
 		  group.IncludeGroup = false
 		  
