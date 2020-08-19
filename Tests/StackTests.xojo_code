@@ -117,6 +117,59 @@ Inherits TestGroup
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Sub ReadMeExampleTest()
+		  var stack as new Stack_MTC
+		  
+		  stack.Enqueue( "hi" )
+		  stack.Enqueue( 3 )
+		  
+		  var s as string = stack.Dequeue // "hi"
+		  var i as integer = stack.Dequeue // 3
+		  
+		  stack.Enqueue( 1 )
+		  stack.Enqueue( 2 )
+		  
+		  if stack( 0 ) = 1 then
+		    // it is
+		  end if
+		  
+		  i = stack.Dequeue // 1
+		  if stack( 0 ) = 2 then
+		    // it is
+		  end if
+		  
+		  stack.RemoveAllItems
+		  
+		  stack.Enqueue( 0 )
+		  stack.Enqueue( 1 )
+		  stack.Enqueue( 2 )
+		  stack.Enqueue( 3 )
+		  stack.Enqueue( 4 )
+		  
+		  call stack.Dequeue // 0
+		  call stack.Pop // 4
+		  
+		  stack.RemoveItemAt( 2 ) // Now 1, 2
+		  if stack.Count = 2  then
+		    // it is
+		  end if
+		  
+		  i = stack.IndexOf( 2 ) // will be 1
+		  
+		  var arr() as variant = stack.ToArray
+		  if arr.LastRowIndex = stack.LastItemIndex then
+		    // it does
+		  end if
+		  
+		  
+		  Assert.Pass
+		  
+		  #pragma unused s
+		  
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Sub RemoveAllItemsTest()
 		  var stack as new Stack_MTC
 		  
