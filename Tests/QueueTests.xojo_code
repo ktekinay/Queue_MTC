@@ -1,6 +1,18 @@
 #tag Class
 Protected Class QueueTests
 Inherits TestGroup
+	#tag Event
+		Sub TearDown()
+		  if OptimizeTimer isa object then
+		    OptimizeTimer.RunMode = Timer.RunModes.Off
+		    RemoveHandler OptimizeTimer.Action, WeakAddressOf OptimizeTimer_Action
+		    OptimizeTimer = nil
+		  end if
+		  
+		End Sub
+	#tag EndEvent
+
+
 	#tag Method, Flags = &h0
 		Sub CopyConstructorTest()
 		  var queue1 as new Queue_MTC
@@ -91,6 +103,55 @@ Inherits TestGroup
 		  
 		  call Queue.Dequeue
 		  Assert.IsNil( wr.Value ) // No longer exists
+		  
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Sub OptimizeTest()
+		  //
+		  // Forces the class to optimize
+		  //
+		  
+		  OptimizeQueue = new UTQueue
+		  
+		  //
+		  // Add and dequeue a bunch of elements
+		  //
+		  for i as integer = 1 to 10000
+		    OptimizeQueue.Enqueue( i )
+		  next
+		  
+		  for i as integer = 1 to 9500
+		    call OptimizeQueue.Dequeue
+		  next
+		  
+		  Assert.IsTrue( OptimizeQueue.DebugMyArrayCount > 1000 )
+		  Assert.IsTrue( OptimizeQueue.DebugLowerIndex > 1000 )
+		  Assert.AreEqual( OptimizeQueue.DebugLowerIndex + OptimizeQueue.LastItemIndex, OptimizeQueue.DebugUpperIndex )
+		  
+		  OptimizeTimer = new Timer
+		  AddHandler OptimizeTimer.Action, WeakAddressOf OptimizeTimer_Action
+		  OptimizeTimer.Period = 1100
+		  OptimizeTimer.RunMode = Timer.RunModes.Single
+		  
+		  self.AsyncAwait( 2 )
+		  
+		  
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h21
+		Private Sub OptimizeTimer_Action(sender As Timer)
+		  #pragma unused sender
+		  
+		  self.AsyncComplete
+		  
+		  Assert.IsTrue( OptimizeQueue.DebugMyArrayCount < 1000 )
+		  Assert.AreEqual( 0, OptimizeQueue.DebugLowerIndex )
+		  Assert.AreEqual( OptimizeQueue.LastItemIndex, OptimizeQueue.DebugUpperIndex )
+		  
+		  
 		  
 		End Sub
 	#tag EndMethod
@@ -269,6 +330,15 @@ Inherits TestGroup
 		  
 		End Sub
 	#tag EndMethod
+
+
+	#tag Property, Flags = &h21
+		Private OptimizeQueue As UTQueue
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
+		Private OptimizeTimer As Timer
+	#tag EndProperty
 
 
 	#tag ViewBehavior

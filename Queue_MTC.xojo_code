@@ -207,6 +207,10 @@ Implements Iterable,Iterator
 		  
 		  if LowerIndex > kOptimalSize then
 		    
+		    #if DebugBuild then
+		      var startµs as double = Microseconds
+		    #endif
+		    
 		    MyArray = ToArray_Private
 		    LowerIndex = 0
 		    UpperIndex = lii
@@ -215,6 +219,10 @@ Implements Iterable,Iterator
 		      MyArray.ResizeTo( kInitialSize )
 		    end if
 		    
+		    #if DebugBuild then
+		      var elapsedms as double = ( Microseconds - startµs ) / 1000.0
+		      System.DebugLog "Optimization took " + elapsedms.ToString( "###,##0.00" ) + " ms"
+		    #endif
 		  end if
 		  
 		  MySemaphore.Release
@@ -389,12 +397,12 @@ Implements Iterable,Iterator
 		LastItemIndex As Integer
 	#tag EndComputedProperty
 
-	#tag Property, Flags = &h21
-		Private LowerIndex As Integer
+	#tag Property, Flags = &h1
+		Protected LowerIndex As Integer
 	#tag EndProperty
 
-	#tag Property, Flags = &h21
-		Private MyArray(kInitialSize) As Variant
+	#tag Property, Flags = &h1
+		Protected MyArray(kInitialSize) As Variant
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
@@ -405,8 +413,8 @@ Implements Iterable,Iterator
 		Private OptimizeTimer As Timer
 	#tag EndProperty
 
-	#tag Property, Flags = &h21
-		Private UpperIndex As Integer = -1
+	#tag Property, Flags = &h1
+		Protected UpperIndex As Integer = -1
 	#tag EndProperty
 
 
