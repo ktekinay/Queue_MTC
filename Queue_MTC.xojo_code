@@ -205,7 +205,7 @@ Implements Iterable,Iterator
 		  
 		  var lii as integer = LastItemIndex
 		  
-		  if lii < kOptimalSize and MyArray.LastRowIndex > kOptimalSize then
+		  if LowerIndex > kOptimalSize then
 		    
 		    MyArray = ToArray_Private
 		    LowerIndex = 0
