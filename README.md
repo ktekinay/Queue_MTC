@@ -62,6 +62,6 @@ See the included LICENSE file for the legal stuff.
 
 ## Release Notes
 
-**1.0** (Aug. 19, 2020)
+**1.0** (Aug. 20, 2020)
 
 * Initial release
