@@ -65,7 +65,6 @@ Implements Iterable,Iterator
 		  MySemaphore.Signal
 		  
 		  if UpperIndex < LowerIndex then
-		    MySemaphore.Release
 		    raise new OutOfBoundsException
 		  end if
 		  
@@ -89,6 +88,10 @@ Implements Iterable,Iterator
 		  
 		  return result
 		  
+		  Exception err as RuntimeException
+		    MySemaphore.Release
+		    raise err
+		    
 		End Function
 	#tag EndMethod
 
@@ -125,7 +128,10 @@ Implements Iterable,Iterator
 		  
 		  MySemaphore.Release
 		  
-		  
+		  Exception err as RuntimeException
+		    MySemaphore.Release
+		    raise err
+		    
 		End Sub
 	#tag EndMethod
 
@@ -162,9 +168,15 @@ Implements Iterable,Iterator
 		    
 		  end if
 		  
+		  
 		  MySemaphore.Release
 		  
 		  return result
+		  
+		  Exception err as RuntimeException
+		    MySemaphore.Release
+		    raise err
+		    
 		End Function
 	#tag EndMethod
 
@@ -193,7 +205,6 @@ Implements Iterable,Iterator
 		  MySemaphore.Signal
 		  
 		  if index < 0 or index > ( UpperIndex - LowerIndex ) then
-		    MySemaphore.Release
 		    raise new OutOfBoundsException
 		  end if
 		  
@@ -204,6 +215,10 @@ Implements Iterable,Iterator
 		  
 		  return result
 		  
+		  Exception err as RuntimeException
+		    MySemaphore.Release
+		    raise err
+		    
 		End Function
 	#tag EndMethod
 
@@ -212,7 +227,6 @@ Implements Iterable,Iterator
 		  MySemaphore.Signal
 		  
 		  if index < 0 or index > ( UpperIndex - LowerIndex ) then
-		    MySemaphore.Release
 		    raise new OutOfBoundsException
 		  end if
 		  
@@ -221,6 +235,10 @@ Implements Iterable,Iterator
 		  
 		  MySemaphore.Release
 		  
+		  Exception err as RuntimeException
+		    MySemaphore.Release
+		    raise err
+		    
 		End Sub
 	#tag EndMethod
 
@@ -255,6 +273,10 @@ Implements Iterable,Iterator
 		  
 		  MySemaphore.Release
 		  
+		  Exception err as RuntimeException
+		    MySemaphore.Release
+		    raise err
+		    
 		End Sub
 	#tag EndMethod
 
@@ -267,7 +289,6 @@ Implements Iterable,Iterator
 		  MySemaphore.Signal
 		  
 		  if UpperIndex < LowerIndex then
-		    MySemaphore.Release
 		    raise new OutOfBoundsException
 		  end if
 		  
@@ -291,6 +312,10 @@ Implements Iterable,Iterator
 		  
 		  return result
 		  
+		  Exception err as RuntimeException
+		    MySemaphore.Release
+		    raise err
+		    
 		End Function
 	#tag EndMethod
 
@@ -315,6 +340,10 @@ Implements Iterable,Iterator
 		  
 		  MySemaphore.Release
 		  
+		  Exception err as RuntimeException
+		    MySemaphore.Release
+		    raise err
+		    
 		End Sub
 	#tag EndMethod
 
@@ -323,7 +352,6 @@ Implements Iterable,Iterator
 		  MySemaphore.Signal
 		  
 		  if index < 0 or index > ( UpperIndex - LowerIndex ) then
-		    MySemaphore.Release
 		    raise new OutOfBoundsException
 		  end if
 		  
@@ -361,6 +389,10 @@ Implements Iterable,Iterator
 		  
 		  MySemaphore.Release
 		  
+		  Exception err as RuntimeException
+		    MySemaphore.Release
+		    raise err
+		    
 		End Sub
 	#tag EndMethod
 
@@ -375,6 +407,10 @@ Implements Iterable,Iterator
 		  
 		  return result
 		  
+		  Exception err as RuntimeException
+		    MySemaphore.Release
+		    raise err
+		    
 		End Function
 	#tag EndMethod
 
