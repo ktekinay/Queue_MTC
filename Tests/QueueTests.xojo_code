@@ -184,6 +184,40 @@ Inherits TestGroup
 		  end try
 		  #pragma BreakOnExceptions default
 		  
+		  #pragma BreakOnExceptions false
+		  try
+		    queue.RemoveItemAt( 99 )
+		    Assert.Fail( "Remove 99" )
+		  catch err as OutOfBoundsException
+		    Assert.Pass
+		  end try
+		  #pragma BreakOnExceptions default
+		  
+		  #pragma BreakOnExceptions false
+		  try
+		    queue( 99 ) = 99
+		    Assert.Fail( "Insert 99" )
+		  catch err as OutOfBoundsException
+		    Assert.Pass
+		  end try
+		  #pragma BreakOnExceptions default
+		  
+		  queue.RemoveAllItems
+		  
+		  #pragma BreakOnExceptions false
+		  try
+		    call queue.Dequeue
+		    Assert.Fail( "Dequeue empty queue" )
+		  catch err as OutOfBoundsException
+		    Assert.Pass
+		  end try
+		  #pragma BreakOnExceptions default
+		  
+		  //
+		  // Make sure it still works
+		  //
+		  queue.Enqueue( 1 )
+		  Assert.AreEqual( 1, queue.Count )
 		  
 		End Sub
 	#tag EndMethod
