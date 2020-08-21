@@ -258,13 +258,13 @@ Implements Iterable,Iterator
 		  
 		  MySemaphore.Signal
 		  
-		  var lii as integer = LastItemIndex
-		  
 		  if LowerIndex > kOptimalSize then
 		    
 		    #if DebugBuild or kDebug then
 		      var startµs as double = Microseconds
 		    #endif
+		    
+		    var lii as integer = LastItemIndex
 		    
 		    var newArray( kOptimalSize ) as variant
 		    CopyToArray( newArray )
