@@ -1,9 +1,57 @@
 #tag Class
-Protected Class Stack_MTC
+Protected Class Queue_MTC
 Implements Iterable,Iterator
 	#tag Method, Flags = &h0
 		Sub Constructor()
 		  MySemaphore = new Semaphore
+		  
+		  OptimizeTimer = new Timer
+		  OptimizeTimer.Period = 1000
+		  AddHandler OptimizeTimer.Action, WeakAddressOf OptimizeTimer_Action
+		  OptimizeTimer.RunMode = Timer.RunModes.Multiple
+		  
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Sub Constructor(copyFrom As Queue_MTC)
+		  Constructor()
+		  
+		  if copyFrom.Count <> 0 then
+		    MyArray = copyFrom.ToArray
+		    UpperIndex = copyFrom.LastItemIndex
+		    
+		    if MyArray.LastRowIndex < kInitialSize then
+		      MyArray.ResizeTo( kInitialSize )
+		    end if
+		  end if
+		  
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h21
+		Private Sub CopyToArray(copy() As Variant)
+		  #if not DebugBuild then
+		    #pragma BackgroundTasks false
+		    #pragma BoundsChecking false
+		    #pragma NilObjectChecking false
+		    #pragma StackOverflowChecking false
+		  #endif
+		  
+		  var lii as integer = LastItemIndex
+		  
+		  //
+		  // The copy may be larger than needed, but may not be smaller
+		  //
+		  if copy.LastRowIndex < lii then
+		    copy.ResizeTo( lii )
+		  end if
+		  
+		  var copyIndex as integer = -1
+		  for arrIndex as integer = LowerIndex to UpperIndex
+		    copyIndex = copyIndex + 1
+		    copy( copyIndex ) = MyArray( arrIndex )
+		  next
 		  
 		End Sub
 	#tag EndMethod
@@ -17,16 +65,15 @@ Implements Iterable,Iterator
 		  MySemaphore.Signal
 		  
 		  if UpperIndex < LowerIndex then
-		    MySemaphore.Release
 		    raise new OutOfBoundsException
 		  end if
 		  
-		  var result as variant = arr( LowerIndex )
-		  arr( LowerIndex ) = nil
+		  var result as variant = MyArray( LowerIndex )
+		  MyArray( LowerIndex ) = nil
 		  
 		  if LowerIndex = UpperIndex then
 		    //
-		    // Reset the stack
+		    // Reset the Queue
 		    //
 		    LowerIndex = 0
 		    UpperIndex = -1 
@@ -41,7 +88,22 @@ Implements Iterable,Iterator
 		  
 		  return result
 		  
+		  Exception err as RuntimeException
+		    MySemaphore.Release
+		    raise err
+		    
 		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h21
+		Private Sub Destructor()
+		  if OptimizeTimer isa object then
+		    OptimizeTimer.RunMode = Timer.RunModes.Off
+		    RemoveHandler OptimizeTimer.Action, WeakAddressOf OptimizeTimer_Action
+		    OptimizeTimer = nil
+		  end if
+		  
+		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
@@ -53,19 +115,23 @@ Implements Iterable,Iterator
 		  MySemaphore.Signal
 		  
 		  UpperIndex = UpperIndex + 1
-		  if UpperIndex > arr.LastRowIndex then
-		    var newSize as integer = arr.LastRowIndex * 2
+		  if UpperIndex > MyArray.LastRowIndex then
+		    var newSize as integer = MyArray.LastRowIndex * 2
 		    if newSize < kInitialSize then
 		      newSize = kInitialSize
 		    end if
 		    
-		    arr.ResizeTo( newSize )
+		    MyArray.ResizeTo( newSize )
 		  end if
 		  
-		  arr( UpperIndex ) = item
+		  MyArray( UpperIndex ) = item
 		  
 		  MySemaphore.Release
 		  
+		  Exception err as RuntimeException
+		    MySemaphore.Release
+		    raise err
+		    
 		End Sub
 	#tag EndMethod
 
@@ -85,26 +151,38 @@ Implements Iterable,Iterator
 		    // We have to handle this case specially
 		    //
 		    for i as integer = LowerIndex to UpperIndex
-		      if arr( i ).IsNull then
-		        result = i - LowerIndex
+		      if MyArray( i ).IsNull then
+		        result = i // Adjusted below
 		        exit
 		      end if
 		    next
 		    
 		  else
 		    
-		    result = arr.IndexOf( item )
-		    if result >= LowerIndex and result <= UpperIndex then
-		      result = result - LowerIndex
-		    else
-		      result = -1
-		    end if
+		    //
+		    // Look for the item that we know if not nil
+		    // This works because everything below LowerIndex
+		    // and above UpperIndex IS nil
+		    //
+		    result = MyArray.IndexOf( item ) // Adjusted below
 		    
+		  end if
+		  
+		  //
+		  // Adjust the result if needed
+		  //
+		  if result <> -1 then
+		    result = result - LowerIndex
 		  end if
 		  
 		  MySemaphore.Release
 		  
 		  return result
+		  
+		  Exception err as RuntimeException
+		    MySemaphore.Release
+		    raise err
+		    
 		End Function
 	#tag EndMethod
 
@@ -132,18 +210,22 @@ Implements Iterable,Iterator
 		Attributes( Hidden )  Function Operator_Subscript(index As Integer) As Variant
 		  MySemaphore.Signal
 		  
-		  if index < 0 or index > ( UpperIndex - LowerIndex ) then
-		    MySemaphore.Release
+		  var lookupIndex as integer = index + LowerIndex
+		  
+		  if lookupIndex < LowerIndex or lookupIndex > UpperIndex then
 		    raise new OutOfBoundsException
 		  end if
 		  
-		  var lookupIndex as integer = index + LowerIndex
-		  var result as variant = arr( lookupIndex )
+		  var result as variant = MyArray( lookupIndex )
 		  
 		  MySemaphore.Release
 		  
 		  return result
 		  
+		  Exception err as RuntimeException
+		    MySemaphore.Release
+		    raise err
+		    
 		End Function
 	#tag EndMethod
 
@@ -151,16 +233,58 @@ Implements Iterable,Iterator
 		Attributes( Hidden )  Sub Operator_Subscript(index As Integer, Assigns item As Variant)
 		  MySemaphore.Signal
 		  
-		  if index < 0 or index > ( UpperIndex - LowerIndex ) then
-		    MySemaphore.Release
+		  var lookupIndex as integer = index + LowerIndex
+		  
+		  if lookupIndex < LowerIndex or lookupIndex > UpperIndex then
 		    raise new OutOfBoundsException
 		  end if
 		  
-		  var lookupIndex as integer = index + LowerIndex
-		  arr( lookupIndex ) = item
+		  MyArray( lookupIndex ) = item
 		  
 		  MySemaphore.Release
 		  
+		  Exception err as RuntimeException
+		    MySemaphore.Release
+		    raise err
+		    
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h21
+		Private Sub OptimizeTimer_Action(sender As Timer)
+		  #pragma unused sender
+		  
+		  const kDebug as boolean = false
+		  
+		  MySemaphore.Signal
+		  
+		  if LowerIndex > kOptimalSize then
+		    
+		    #if DebugBuild or kDebug then
+		      var startµs as double = Microseconds
+		    #endif
+		    
+		    var lii as integer = LastItemIndex
+		    
+		    var newArray( kOptimalSize ) as variant
+		    CopyToArray( newArray )
+		    
+		    MyArray = newArray
+		    LowerIndex = 0
+		    UpperIndex = lii
+		    
+		    #if DebugBuild or kDebug then
+		      var elapsedms as double = ( Microseconds - startµs ) / 1000.0
+		      System.DebugLog "Optimization took " + elapsedms.ToString( "###,##0.00" ) + " ms"
+		    #endif
+		  end if
+		  
+		  MySemaphore.Release
+		  
+		  Exception err as RuntimeException
+		    MySemaphore.Release
+		    raise err
+		    
 		End Sub
 	#tag EndMethod
 
@@ -173,16 +297,15 @@ Implements Iterable,Iterator
 		  MySemaphore.Signal
 		  
 		  if UpperIndex < LowerIndex then
-		    MySemaphore.Release
 		    raise new OutOfBoundsException
 		  end if
 		  
-		  var result as integer = arr( UpperIndex )
-		  arr( UpperIndex ) = nil
+		  var result as integer = MyArray( UpperIndex )
+		  MyArray( UpperIndex ) = nil
 		  
 		  if LowerIndex = UpperIndex then
 		    //
-		    // Reset the stack
+		    // Reset the Queue
 		    //
 		    LowerIndex = 0
 		    UpperIndex = -1
@@ -197,6 +320,10 @@ Implements Iterable,Iterator
 		  
 		  return result
 		  
+		  Exception err as RuntimeException
+		    MySemaphore.Release
+		    raise err
+		    
 		End Function
 	#tag EndMethod
 
@@ -211,16 +338,20 @@ Implements Iterable,Iterator
 		  // Now clear the array to make sure every element is nil
 		  // while preserving its size
 		  //
-		  var lri as integer = arr.LastRowIndex
+		  var lri as integer = MyArray.LastRowIndex
 		  if lri < kInitialSize then
 		    lri = kInitialSize
 		  end if
 		  
-		  arr.RemoveAllRows
-		  arr.ResizeTo( lri )
+		  MyArray.RemoveAllRows
+		  MyArray.ResizeTo( lri )
 		  
 		  MySemaphore.Release
 		  
+		  Exception err as RuntimeException
+		    MySemaphore.Release
+		    raise err
+		    
 		End Sub
 	#tag EndMethod
 
@@ -228,23 +359,25 @@ Implements Iterable,Iterator
 		Sub RemoveItemAt(index As Integer)
 		  MySemaphore.Signal
 		  
-		  if index < 0 or index > ( UpperIndex - LowerIndex ) then
-		    MySemaphore.Release
+		  var removeIndex as integer = index + LowerIndex
+		  
+		  if removeIndex < LowerIndex or removeIndex > UpperIndex then
 		    raise new OutOfBoundsException
 		  end if
 		  
-		  var removeIndex as integer = index + LowerIndex
-		  
 		  if LowerIndex = UpperIndex then
-		    
-		    arr( removeIndex ) = nil
+		    //
+		    // Reset the queue;
+		    // Note: All but this one element will already be nil
+		    //
+		    MyArray( removeIndex ) = nil
 		    
 		    //
 		    // RemoveItemAt might have been called many times in a row,
 		    // so let's leave this at the initial size at a minimum
 		    //
-		    if arr.LastRowIndex < kInitialSize then
-		      arr.ResizeTo( kInitialSize )
+		    if MyArray.LastRowIndex < kInitialSize then
+		      MyArray.ResizeTo( kInitialSize )
 		    end if
 		    
 		    LowerIndex = 0
@@ -252,21 +385,25 @@ Implements Iterable,Iterator
 		    
 		  else
 		    
-		    arr.RemoveRowAt( removeIndex )
+		    MyArray.RemoveRowAt( removeIndex )
 		    UpperIndex = UpperIndex - 1
 		    
 		    //
 		    // So we are not constantly resizing the array,
 		    // only resize if it's less than the minimum
 		    //
-		    if arr.LastRowIndex < kMinSize then
-		      arr.ResizeTo( kInitialSize )
+		    if MyArray.LastRowIndex < kMinSize then
+		      MyArray.ResizeTo( kInitialSize )
 		    end if
 		    
 		  end if
 		  
 		  MySemaphore.Release
 		  
+		  Exception err as RuntimeException
+		    MySemaphore.Release
+		    raise err
+		    
 		End Sub
 	#tag EndMethod
 
@@ -275,28 +412,26 @@ Implements Iterable,Iterator
 		  MySemaphore.Signal
 		  
 		  var result() as variant
-		  for i as integer = LowerIndex to UpperIndex
-		    result.AddRow( arr( i ) )
-		  next
+		  CopyToArray( result ) // Will be resized there
 		  
 		  MySemaphore.Release
 		  
 		  return result
 		  
+		  Exception err as RuntimeException
+		    MySemaphore.Release
+		    raise err
+		    
 		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h21
 		Private Function Value() As Variant
-		  return arr( IteratorIndex )
+		  return MyArray( IteratorIndex )
 		  
 		End Function
 	#tag EndMethod
 
-
-	#tag Property, Flags = &h21
-		Private Arr(kInitialSize) As Variant
-	#tag EndProperty
 
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
@@ -322,8 +457,12 @@ Implements Iterable,Iterator
 		LastItemIndex As Integer
 	#tag EndComputedProperty
 
-	#tag Property, Flags = &h21
-		Private LowerIndex As Integer
+	#tag Property, Flags = &h1
+		Protected LowerIndex As Integer
+	#tag EndProperty
+
+	#tag Property, Flags = &h1
+		Protected MyArray(kInitialSize) As Variant
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
@@ -331,7 +470,11 @@ Implements Iterable,Iterator
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
-		Private UpperIndex As Integer = -1
+		Private OptimizeTimer As Timer
+	#tag EndProperty
+
+	#tag Property, Flags = &h1
+		Protected UpperIndex As Integer = -1
 	#tag EndProperty
 
 
@@ -339,6 +482,9 @@ Implements Iterable,Iterator
 	#tag EndConstant
 
 	#tag Constant, Name = kMinSize, Type = Double, Dynamic = False, Default = \"10", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = kOptimalSize, Type = Double, Dynamic = False, Default = \"500", Scope = Private
 	#tag EndConstant
 
 

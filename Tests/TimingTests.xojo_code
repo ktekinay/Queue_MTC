@@ -7,7 +7,7 @@ Inherits TestGroup
 		    #pragma BackgroundTasks false
 		    #pragma BoundsChecking false
 		    #pragma NilObjectChecking false
-		    #pragma StackOverflowChecking false
+		    #pragma QueueOverflowChecking false
 		  #endif
 		  
 		  var arr() as variant
@@ -30,7 +30,7 @@ Inherits TestGroup
 		    #pragma BackgroundTasks false
 		    #pragma BoundsChecking false
 		    #pragma NilObjectChecking false
-		    #pragma StackOverflowChecking false
+		    #pragma QueueOverflowChecking false
 		  #endif
 		  
 		  var arr() as variant
@@ -48,15 +48,15 @@ Inherits TestGroup
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Sub StackPopTimingTest()
+		Sub QueuePopTimingTest()
 		  #if not DebugBuild then
 		    #pragma BackgroundTasks false
 		    #pragma BoundsChecking false
 		    #pragma NilObjectChecking false
-		    #pragma StackOverflowChecking false
+		    #pragma QueueOverflowChecking false
 		  #endif
 		  
-		  var s as new Stack_MTC
+		  var s as new Queue_MTC
 		  for i as integer = 0 to kTimingReps
 		    s.Enqueue( i )
 		  next
@@ -71,15 +71,15 @@ Inherits TestGroup
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Sub StackTimingTest()
+		Sub QueueTimingTest()
 		  #if not DebugBuild then
 		    #pragma BackgroundTasks false
 		    #pragma BoundsChecking false
 		    #pragma NilObjectChecking false
-		    #pragma StackOverflowChecking false
+		    #pragma QueueOverflowChecking false
 		  #endif
 		  
-		  var s as new Stack_MTC
+		  var s as new Queue_MTC
 		  for i as integer = 0 to kTimingReps
 		    s.Enqueue( i )
 		  next
