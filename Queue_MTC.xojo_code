@@ -233,11 +233,12 @@ Implements Iterable,Iterator
 		Attributes( Hidden )  Sub Operator_Subscript(index As Integer, Assigns item As Variant)
 		  MySemaphore.Signal
 		  
-		  if index < 0 or index > ( UpperIndex - LowerIndex ) then
+		  var lookupIndex as integer = index + LowerIndex
+		  
+		  if lookupIndex < LowerIndex or lookupIndex > UpperIndex then
 		    raise new OutOfBoundsException
 		  end if
 		  
-		  var lookupIndex as integer = index + LowerIndex
 		  MyArray( lookupIndex ) = item
 		  
 		  MySemaphore.Release
