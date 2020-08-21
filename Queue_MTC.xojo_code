@@ -210,11 +210,12 @@ Implements Iterable,Iterator
 		Attributes( Hidden )  Function Operator_Subscript(index As Integer) As Variant
 		  MySemaphore.Signal
 		  
-		  if index < 0 or index > ( UpperIndex - LowerIndex ) then
+		  var lookupIndex as integer = index + LowerIndex
+		  
+		  if lookupIndex < LowerIndex or lookupIndex > UpperIndex then
 		    raise new OutOfBoundsException
 		  end if
 		  
-		  var lookupIndex as integer = index + LowerIndex
 		  var result as variant = MyArray( lookupIndex )
 		  
 		  MySemaphore.Release
