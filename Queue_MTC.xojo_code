@@ -201,13 +201,15 @@ Implements Iterable,Iterator
 		Private Sub OptimizeTimer_Action(sender As Timer)
 		  #pragma unused sender
 		  
+		  const kDebug as boolean = false
+		  
 		  MySemaphore.Signal
 		  
 		  var lii as integer = LastItemIndex
 		  
 		  if LowerIndex > kOptimalSize then
 		    
-		    #if DebugBuild then
+		    #if DebugBuild or kDebug then
 		      var startµs as double = Microseconds
 		    #endif
 		    
@@ -215,11 +217,9 @@ Implements Iterable,Iterator
 		    LowerIndex = 0
 		    UpperIndex = lii
 		    
-		    if MyArray.LastRowIndex < kInitialSize then
-		      MyArray.ResizeTo( kInitialSize )
-		    end if
+		    MyArray.ResizeTo( kOptimalSize )
 		    
-		    #if DebugBuild then
+		    #if DebugBuild or kDebug then
 		      var elapsedms as double = ( Microseconds - startµs ) / 1000.0
 		      System.DebugLog "Optimization took " + elapsedms.ToString( "###,##0.00" ) + " ms"
 		    #endif
@@ -351,6 +351,13 @@ Implements Iterable,Iterator
 
 	#tag Method, Flags = &h21
 		Private Function ToArray_Private() As Variant()
+		  #if not DebugBuild then
+		    #pragma BackgroundTasks false
+		    #pragma BoundsChecking false
+		    #pragma NilObjectChecking false
+		    #pragma StackOverflowChecking false
+		  #endif
+		  
 		  var result() as variant
 		  result.ResizeTo( LastItemIndex )
 		  
