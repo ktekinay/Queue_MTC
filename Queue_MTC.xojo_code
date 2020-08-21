@@ -29,6 +29,33 @@ Implements Iterable,Iterator
 		End Sub
 	#tag EndMethod
 
+	#tag Method, Flags = &h21
+		Private Sub CopyToArray(copy() As Variant)
+		  #if not DebugBuild then
+		    #pragma BackgroundTasks false
+		    #pragma BoundsChecking false
+		    #pragma NilObjectChecking false
+		    #pragma StackOverflowChecking false
+		  #endif
+		  
+		  var lii as integer = LastItemIndex
+		  
+		  //
+		  // The copy may be larger than needed, but may not be smaller
+		  //
+		  if copy.LastRowIndex < lii then
+		    copy.ResizeTo( lii )
+		  end if
+		  
+		  var copyIndex as integer = -1
+		  for arrIndex as integer = LowerIndex to UpperIndex
+		    copyIndex = copyIndex + 1
+		    copy( copyIndex ) = MyArray( arrIndex )
+		  next
+		  
+		End Sub
+	#tag EndMethod
+
 	#tag Method, Flags = &h0, Description = 52657475726E7320616E642072656D6F76657320746865206669727374206974656D20717565756564
 		Function Dequeue() As Variant
 		  //
@@ -213,11 +240,12 @@ Implements Iterable,Iterator
 		      var startµs as double = Microseconds
 		    #endif
 		    
-		    MyArray = ToArray_Private
+		    var newArray( kOptimalSize ) as variant
+		    CopyToArray( newArray )
+		    
+		    MyArray = newArray
 		    LowerIndex = 0
 		    UpperIndex = lii
-		    
-		    MyArray.ResizeTo( kOptimalSize )
 		    
 		    #if DebugBuild or kDebug then
 		      var elapsedms as double = ( Microseconds - startµs ) / 1000.0
@@ -340,32 +368,10 @@ Implements Iterable,Iterator
 		Function ToArray() As Variant()
 		  MySemaphore.Signal
 		  
-		  var result() as variant = ToArray_Private
+		  var result() as variant
+		  CopyToArray( result ) // Will be resized there
 		  
 		  MySemaphore.Release
-		  
-		  return result
-		  
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h21
-		Private Function ToArray_Private() As Variant()
-		  #if not DebugBuild then
-		    #pragma BackgroundTasks false
-		    #pragma BoundsChecking false
-		    #pragma NilObjectChecking false
-		    #pragma StackOverflowChecking false
-		  #endif
-		  
-		  var result() as variant
-		  result.ResizeTo( LastItemIndex )
-		  
-		  var resultIndex as integer = -1
-		  for arrIndex as integer = LowerIndex to UpperIndex
-		    resultIndex = resultIndex + 1
-		    result( resultIndex ) = MyArray( arrIndex )
-		  next
 		  
 		  return result
 		  
