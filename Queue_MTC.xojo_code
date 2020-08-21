@@ -152,22 +152,28 @@ Implements Iterable,Iterator
 		    //
 		    for i as integer = LowerIndex to UpperIndex
 		      if MyArray( i ).IsNull then
-		        result = i - LowerIndex
+		        result = i // Adjusted below
 		        exit
 		      end if
 		    next
 		    
 		  else
 		    
-		    result = MyArray.IndexOf( item )
-		    if result >= LowerIndex and result <= UpperIndex then
-		      result = result - LowerIndex
-		    else
-		      result = -1
-		    end if
+		    //
+		    // Look for the item that we know if not nil
+		    // This works because everything below LowerIndex
+		    // and above UpperIndex IS nil
+		    //
+		    result = MyArray.IndexOf( item ) // Adjusted below
 		    
 		  end if
 		  
+		  //
+		  // Adjust the result if needed
+		  //
+		  if result <> -1 then
+		    result = result - LowerIndex
+		  end if
 		  
 		  MySemaphore.Release
 		  
