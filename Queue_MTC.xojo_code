@@ -359,14 +359,17 @@ Implements Iterable,Iterator
 		Sub RemoveItemAt(index As Integer)
 		  MySemaphore.Signal
 		  
-		  if index < 0 or index > ( UpperIndex - LowerIndex ) then
+		  var removeIndex as integer = index + LowerIndex
+		  
+		  if removeIndex < LowerIndex or removeIndex > UpperIndex then
 		    raise new OutOfBoundsException
 		  end if
 		  
-		  var removeIndex as integer = index + LowerIndex
-		  
 		  if LowerIndex = UpperIndex then
-		    
+		    //
+		    // Reset the queue;
+		    // Note: All but this one element will already be nil
+		    //
 		    MyArray( removeIndex ) = nil
 		    
 		    //
