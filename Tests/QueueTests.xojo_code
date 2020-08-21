@@ -38,36 +38,36 @@ Inherits TestGroup
 
 	#tag Method, Flags = &h0
 		Sub FILOTest()
-		  var Queue as new Queue_MTC
+		  var queue as new Queue_MTC
 		  
-		  Queue.Enqueue( 1 )
-		  Queue.Enqueue( true )
-		  Queue.Enqueue( 5.5 )
+		  queue.Enqueue( 1 )
+		  queue.Enqueue( true )
+		  queue.Enqueue( 5.5 )
 		  
-		  Assert.AreEqual( 1, Queue.Dequeue.IntegerValue )
-		  Assert.IsTrue( Queue.Dequeue.BooleanValue )
-		  Assert.AreEqual( 5.5, Queue.Dequeue.DoubleValue )
+		  Assert.AreEqual( 1, queue.Dequeue.IntegerValue )
+		  Assert.IsTrue( queue.Dequeue.BooleanValue )
+		  Assert.AreEqual( 5.5, queue.Dequeue.DoubleValue )
 		  
-		  Assert.AreEqual( 0, Queue.Count )
-		  Assert.AreEqual( -1, Queue.LastItemIndex )
+		  Assert.AreEqual( 0, queue.Count )
+		  Assert.AreEqual( -1, queue.LastItemIndex )
 		  
 		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
 		Sub IndexOfTest()
-		  var Queue as new Queue_MTC
+		  var queue as new Queue_MTC
 		  
-		  Queue.Enqueue( 1 )
-		  Queue.Enqueue( 2 )
-		  Queue.Enqueue( 3 )
-		  Queue.Enqueue( 1 )
+		  queue.Enqueue( 1 )
+		  queue.Enqueue( 2 )
+		  queue.Enqueue( 3 )
+		  queue.Enqueue( 1 )
 		  
-		  Assert.AreEqual( 1, Queue.Dequeue.IntegerValue )
-		  Assert.AreEqual( 2, Queue.IndexOf( 1 ) )
+		  Assert.AreEqual( 1, queue.Dequeue.IntegerValue )
+		  Assert.AreEqual( 2, queue.IndexOf( 1 ) )
 		  
-		  Queue.Enqueue( nil )
-		  Assert.AreEqual( 3, Queue.IndexOf( nil ) )
+		  queue.Enqueue( nil )
+		  Assert.AreEqual( 3, queue.IndexOf( nil ) )
 		  
 		  
 		End Sub
@@ -75,14 +75,14 @@ Inherits TestGroup
 
 	#tag Method, Flags = &h0
 		Sub IteratorTest()
-		  var Queue as new Queue_MTC
+		  var queue as new Queue_MTC
 		  
-		  Queue.Enqueue( 1 )
-		  Queue.Enqueue( 2 )
-		  Queue.Enqueue( 3 )
+		  queue.Enqueue( 1 )
+		  queue.Enqueue( 2 )
+		  queue.Enqueue( 3 )
 		  
 		  var counter as integer
-		  for each v as variant in Queue
+		  for each v as variant in queue
 		    counter = counter + 1
 		    Assert.AreEqual counter, v.IntegerValue
 		  next
@@ -91,17 +91,17 @@ Inherits TestGroup
 
 	#tag Method, Flags = &h0
 		Sub ObjectScopeTest()
-		  var Queue as new Queue_MTC
+		  var queue as new Queue_MTC
 		  
 		  var o as new Dictionary
 		  var wr as new WeakRef( o )
 		  Assert.IsNotNil( wr.Value ) // Points to the object
 		  
-		  Queue.Enqueue( o )
+		  queue.Enqueue( o )
 		  o = nil
-		  Assert.IsNotNil( wr.Value ) // Exists in the Queue
+		  Assert.IsNotNil( wr.Value ) // Exists in the queue
 		  
-		  call Queue.Dequeue
+		  call queue.Dequeue
 		  Assert.IsNil( wr.Value ) // No longer exists
 		  
 		End Sub
@@ -158,26 +158,26 @@ Inherits TestGroup
 
 	#tag Method, Flags = &h0
 		Sub OutOfBoundsTest()
-		  var Queue as new Queue_MTC
+		  var queue as new Queue_MTC
 		  
 		  for i as integer = 1 to 100
-		    Queue.Enqueue( i )
+		    queue.Enqueue( i )
 		  next
 		  
 		  #pragma BreakOnExceptions false
 		  try
-		    call Queue( 100 )
+		    call queue( 100 )
 		    Assert.Fail( "100" )
 		  catch err as OutOfBoundsException
 		    Assert.Pass
 		  end try
 		  #pragma BreakOnExceptions default
 		  
-		  call Queue.Dequeue
+		  call queue.Dequeue
 		  
 		  #pragma BreakOnExceptions false
 		  try
-		    call Queue( 99 )
+		    call queue( 99 )
 		    Assert.Fail( "99" )
 		  catch err as OutOfBoundsException
 		    Assert.Pass
@@ -190,58 +190,58 @@ Inherits TestGroup
 
 	#tag Method, Flags = &h0
 		Sub PopTest()
-		  var Queue as new Queue_MTC
+		  var queue as new Queue_MTC
 		  
-		  Queue.Enqueue( 1 )
-		  Queue.Enqueue( 2 )
-		  Assert.AreEqual( 2, Queue.Pop.IntegerValue )
-		  Assert.AreEqual( 1, Queue.Count )
+		  queue.Enqueue( 1 )
+		  queue.Enqueue( 2 )
+		  Assert.AreEqual( 2, queue.Pop.IntegerValue )
+		  Assert.AreEqual( 1, queue.Count )
 		  
 		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
 		Sub ReadMeExampleTest()
-		  var Queue as new Queue_MTC
+		  var queue as new Queue_MTC
 		  
-		  Queue.Enqueue( "hi" )
-		  Queue.Enqueue( 3 )
+		  queue.Enqueue( "hi" )
+		  queue.Enqueue( 3 )
 		  
-		  var s as string = Queue.Dequeue // "hi"
-		  var i as integer = Queue.Dequeue // 3
+		  var s as string = queue.Dequeue // "hi"
+		  var i as integer = queue.Dequeue // 3
 		  
-		  Queue.Enqueue( 1 )
-		  Queue.Enqueue( 2 )
+		  queue.Enqueue( 1 )
+		  queue.Enqueue( 2 )
 		  
-		  if Queue( 0 ) = 1 then
+		  if queue( 0 ) = 1 then
 		    // it is
 		  end if
 		  
-		  i = Queue.Dequeue // 1
-		  if Queue( 0 ) = 2 then
+		  i = queue.Dequeue // 1
+		  if queue( 0 ) = 2 then
 		    // it is
 		  end if
 		  
-		  Queue.RemoveAllItems
+		  queue.RemoveAllItems
 		  
-		  Queue.Enqueue( 0 )
-		  Queue.Enqueue( 1 )
-		  Queue.Enqueue( 2 )
-		  Queue.Enqueue( 3 )
-		  Queue.Enqueue( 4 )
+		  queue.Enqueue( 0 )
+		  queue.Enqueue( 1 )
+		  queue.Enqueue( 2 )
+		  queue.Enqueue( 3 )
+		  queue.Enqueue( 4 )
 		  
-		  call Queue.Dequeue // 0
-		  call Queue.Pop // 4
+		  call queue.Dequeue // 0
+		  call queue.Pop // 4
 		  
-		  Queue.RemoveItemAt( 2 ) // Now 1, 2
-		  if Queue.Count = 2  then
+		  queue.RemoveItemAt( 2 ) // Now 1, 2
+		  if queue.Count = 2  then
 		    // it is
 		  end if
 		  
-		  i = Queue.IndexOf( 2 ) // will be 1
+		  i = queue.IndexOf( 2 ) // will be 1
 		  
-		  var arr() as variant = Queue.ToArray
-		  if arr.LastRowIndex = Queue.LastItemIndex then
+		  var arr() as variant = queue.ToArray
+		  if arr.LastRowIndex = queue.LastItemIndex then
 		    // it does
 		  end if
 		  
@@ -255,74 +255,74 @@ Inherits TestGroup
 
 	#tag Method, Flags = &h0
 		Sub RemoveAllItemsTest()
-		  var Queue as new Queue_MTC
+		  var queue as new Queue_MTC
 		  
-		  Queue.Enqueue( 1 )
-		  Queue.Enqueue( 2 )
-		  Queue.Enqueue( 3 )
-		  Queue.Enqueue( 4 )
+		  queue.Enqueue( 1 )
+		  queue.Enqueue( 2 )
+		  queue.Enqueue( 3 )
+		  queue.Enqueue( 4 )
 		  
-		  Assert.AreEqual( 3, Queue.LastItemIndex )
+		  Assert.AreEqual( 3, queue.LastItemIndex )
 		  
-		  Queue.RemoveAllItems
-		  Assert.AreEqual( -1, Queue.LastItemIndex )
+		  queue.RemoveAllItems
+		  Assert.AreEqual( -1, queue.LastItemIndex )
 		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
 		Sub RemoveItemTest()
-		  var Queue as new Queue_MTC
+		  var queue as new Queue_MTC
 		  
-		  Queue.Enqueue( 1 )
-		  Queue.Enqueue( 2 )
-		  Queue.Enqueue( 3 )
-		  Queue.Enqueue( 4 )
+		  queue.Enqueue( 1 )
+		  queue.Enqueue( 2 )
+		  queue.Enqueue( 3 )
+		  queue.Enqueue( 4 )
 		  
-		  call Queue.Dequeue
-		  Assert.AreEqual 3, Queue.Count
-		  Assert.AreEqual 3, Queue( 1 ).IntegerValue
+		  call queue.Dequeue
+		  Assert.AreEqual 3, queue.Count
+		  Assert.AreEqual 3, queue( 1 ).IntegerValue
 		  
-		  Queue.RemoveItemAt( 1 )
-		  Assert.AreEqual( 2, Queue.Count )
-		  Assert.AreEqual( 4, Queue( Queue.LastItemIndex ).IntegerValue )
+		  queue.RemoveItemAt( 1 )
+		  Assert.AreEqual( 2, queue.Count )
+		  Assert.AreEqual( 4, queue( queue.LastItemIndex ).IntegerValue )
 		  
-		  Queue.RemoveItemAt( 0 )
-		  Queue.RemoveItemAt( 0 )
-		  Assert.AreEqual( 0, Queue.Count )
+		  queue.RemoveItemAt( 0 )
+		  queue.RemoveItemAt( 0 )
+		  Assert.AreEqual( 0, queue.Count )
 		  
 		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
 		Sub SubscriptTest()
-		  var Queue as new Queue_MTC
+		  var queue as new Queue_MTC
 		  
-		  Queue.Enqueue( 1 )
-		  Queue.Enqueue( 2 )
+		  queue.Enqueue( 1 )
+		  queue.Enqueue( 2 )
 		  
-		  Assert.AreEqual( 1, Queue( 0 ).IntegerValue )
+		  Assert.AreEqual( 1, queue( 0 ).IntegerValue )
 		  
-		  call Queue.Dequeue
-		  Assert.AreEqual( 2, Queue( 0 ).IntegerValue )
+		  call queue.Dequeue
+		  Assert.AreEqual( 2, queue( 0 ).IntegerValue )
 		  
-		  Queue( 0 ) = 99
-		  Assert.AreEqual( 99, Queue( 0 ).IntegerValue )
+		  queue( 0 ) = 99
+		  Assert.AreEqual( 99, queue( 0 ).IntegerValue )
 		  
 		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
 		Sub ToArrayTest()
-		  var Queue as new Queue_MTC
+		  var queue as new Queue_MTC
 		  
-		  Queue.Enqueue( 0 )
-		  Queue.Enqueue( 1 )
-		  Queue.Enqueue( new Dictionary )
-		  Queue.Enqueue( "hi there" )
+		  queue.Enqueue( 0 )
+		  queue.Enqueue( 1 )
+		  queue.Enqueue( new Dictionary )
+		  queue.Enqueue( "hi there" )
 		  
-		  call Queue.Dequeue
+		  call queue.Dequeue
 		  
-		  var arr() as variant = Queue.ToArray
+		  var arr() as variant = queue.ToArray
 		  Assert.AreEqual( 3, CType( arr.Count, Integer ) )
 		  Assert.AreEqual( 1, arr( 0 ).IntegerValue )
 		  Assert.IsTrue( arr( 1 ).ObjectValue isa Dictionary )
